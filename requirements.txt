@@ -1,3 +1,4 @@
 pypdf
-openai
 python-dotenv
+google-genai
+pydantic

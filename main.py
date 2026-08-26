@@ -1,44 +1,16 @@
-import os
-from dotenv import load_dotenv
-from google import genai
 from document_reader import extract_text_from_pdf
-from pydantic import BaseModel
+from ai_extractor import extract_document_data
 
 
-class DocumentData(BaseModel):
-    title: str
-    summary: str
-    key_topics: list[str]
+pdf_path = input("Enter PDF path: ")
 
-load_dotenv()
+try:
+    text = extract_text_from_pdf(pdf_path)
+except FileNotFoundError:
+    print("File not found.")
+    exit()
 
-api_key = os.getenv("GEMINI_API_KEY")
-
-client = genai.Client(api_key=api_key)
-
-text = extract_text_from_pdf("example.pdf")
-
-response = client.models.generate_content(
-    model="gemini-3.6-flash",
-    contents=f"""
-Extract the following information from this document:
-
-- title
-- summary
-- key_topics
-
-Return the result as JSON.
-
-Document:
-{text}
-""",
-    config={
-        "response_mime_type": "application/json",
-        "response_schema": DocumentData,
-    },
-)
-
-data = response.parsed
+data = extract_document_data(text)
 
 print(data.title)
 print(data.summary)
